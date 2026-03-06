@@ -52,16 +52,14 @@ fn calc_achievement(
     perfect: u32,
     great: u32,
     notes: u32,
-    empty_miss: u32,
     combo: u32,
     phrase_success: u32,
     phrase_total: u32,
 ) -> f64 {
-    let denominator = notes + empty_miss;
-    let perfect_rate = if denominator == 0 {
+    let perfect_rate = if notes == 0 {
         0.0
     } else {
-        (perfect as f64 * 85.0 + great as f64 * 25.0) / denominator as f64
+        (perfect as f64 * 85.0 + great as f64 * 25.0) / notes as f64
     };
 
     let combo_rate = if notes == 0 {
@@ -114,14 +112,11 @@ fn main() -> Result<()> {
         bail!("成功フレーズ数が総フレーズ数を超えています");
     }
 
-    let empty_miss = args.notes - judged;
-
     // 現在の状態
     let current_achievement = calc_achievement(
         args.perfect,
         args.great,
         args.notes,
-        empty_miss,
         args.combo,
         args.phrase_success,
         args.phrase_total,
@@ -131,10 +126,10 @@ fn main() -> Result<()> {
 
     println!("=== 現在の状態 ===");
     println!("譜面レベル: {:.2}", args.level);
-    let perfect_rate_val = if (args.notes + empty_miss) == 0 {
+    let perfect_rate_val = if args.notes == 0 {
         0.0
     } else {
-        (args.perfect as f64 * 85.0 + args.great as f64 * 25.0) / (args.notes + empty_miss) as f64
+        (args.perfect as f64 * 85.0 + args.great as f64 * 25.0) / args.notes as f64
     };
     let combo_rate_val = if args.notes == 0 {
         0.0
@@ -167,7 +162,6 @@ fn main() -> Result<()> {
         args.perfect + args.great + args.good + args.miss,
         0,
         args.notes,
-        0,
         args.notes,
         args.phrase_total,
         args.phrase_total,
@@ -193,7 +187,6 @@ fn main() -> Result<()> {
                 new_perfect,
                 new_great,
                 args.notes,
-                empty_miss,
                 args.combo,
                 args.phrase_success,
                 args.phrase_total,
@@ -216,7 +209,6 @@ fn main() -> Result<()> {
                 args.perfect + args.great,
                 0,
                 args.notes,
-                empty_miss,
                 args.combo,
                 args.phrase_success,
                 args.phrase_total,
@@ -236,7 +228,6 @@ fn main() -> Result<()> {
             args.perfect,
             args.great,
             args.notes,
-            empty_miss,
             args.notes,
             args.phrase_success,
             args.phrase_total,
@@ -253,7 +244,6 @@ fn main() -> Result<()> {
             args.perfect,
             args.great,
             args.notes,
-            empty_miss,
             args.combo,
             args.phrase_total,
             args.phrase_total,
@@ -268,17 +258,11 @@ fn main() -> Result<()> {
         let mut needed = None;
         for i in 1..=recoverable {
             // Good から先に変換、次に Miss
-            let good_convert = i.min(args.good);
-            let miss_convert = i - good_convert;
             let new_perfect = args.perfect + i;
-            let new_good = args.good - good_convert;
-            let new_miss = args.miss - miss_convert;
-            let new_empty_miss = args.notes - new_perfect - args.great - new_good - new_miss;
             let ach = calc_achievement(
                 new_perfect,
                 args.great,
                 args.notes,
-                new_empty_miss,
                 args.combo,
                 args.phrase_success,
                 args.phrase_total,
@@ -308,7 +292,6 @@ fn main() -> Result<()> {
                 new_perfect,
                 new_great,
                 args.notes,
-                empty_miss,
                 args.notes,
                 args.phrase_success,
                 args.phrase_total,
@@ -338,7 +321,6 @@ fn main() -> Result<()> {
                 new_perfect,
                 new_great,
                 args.notes,
-                empty_miss,
                 args.combo,
                 args.phrase_total,
                 args.phrase_total,
@@ -364,7 +346,6 @@ fn main() -> Result<()> {
             args.perfect,
             args.great,
             args.notes,
-            empty_miss,
             args.notes,
             args.phrase_total,
             args.phrase_total,
