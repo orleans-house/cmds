@@ -22,7 +22,13 @@ jobs:
           DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
         run: |
           if [ -n "$DISCORD_WEBHOOK" ]; then
+            PR_URL="${{ github.event.pull_request.html_url }}"
+            if [ -n "$PR_URL" ]; then
+              MSG="✅ CI passed: **${{ github.repository }}** (\`${{ github.ref_name }}\`) by ${{ github.actor }}\n${PR_URL}"
+            else
+              MSG="✅ CI passed: **${{ github.repository }}** (\`${{ github.ref_name }}\`) by ${{ github.actor }}\nhttps://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+            fi
             curl -fsSL -H "Content-Type: application/json" \
-              -d "{\"content\": \"✅ CI passed: **${{ github.repository }}** (\`${{ github.ref_name }}\`) by ${{ github.actor }}\\nhttps://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}\"}" \
+              -d "{\"content\": \"${MSG}\"}" \
               "$DISCORD_WEBHOOK"
           fi
