@@ -16,19 +16,6 @@ jobs:
       - run: cargo fmt --all -- --check
       - run: cargo clippy --all-targets -- -D warnings
       - run: cargo test --all
-      - name: Notify Discord
-        if: success()
+      - uses: orleans-house/workflows/discord-notify@main
         env:
           DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
-        run: |
-          if [ -n "$DISCORD_WEBHOOK" ]; then
-            PR_URL="${{ github.event.pull_request.html_url }}"
-            if [ -n "$PR_URL" ]; then
-              MSG="✅ CI Passed! @saya Please review: ${PR_URL}"
-            else
-              MSG="✅ CI Passed! @saya Please review: https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}"
-            fi
-            curl -fsSL -H "Content-Type: application/json" \
-              -d "{\"content\": \"${MSG}\"}" \
-              "$DISCORD_WEBHOOK"
-          fi
