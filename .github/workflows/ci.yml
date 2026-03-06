@@ -16,3 +16,13 @@ jobs:
       - run: cargo fmt --all -- --check
       - run: cargo clippy --all-targets -- -D warnings
       - run: cargo test --all
+      - name: Notify Discord
+        if: success()
+        env:
+          DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
+        run: |
+          if [ -n "$DISCORD_WEBHOOK" ]; then
+            curl -fsSL -H "Content-Type: application/json" \
+              -d "{\"content\": \"✅ CI passed: **${{ github.repository }}** (\`${{ github.ref_name }}\`) by ${{ github.actor }}\\nhttps://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}\"}" \
+              "$DISCORD_WEBHOOK"
+          fi
