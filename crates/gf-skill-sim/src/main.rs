@@ -376,5 +376,42 @@ fn main() -> Result<()> {
         }
     }
 
+    // フレーズ段階別シミュレーション
+    if args.phrase_total > 0 {
+        println!();
+        println!(
+            "=== フレーズ別シミュレーション (現在: {}/{}) ===",
+            args.phrase_success, args.phrase_total
+        );
+        let width = format!("{}", args.phrase_total).len();
+        for i in 0..=args.phrase_total {
+            let ach = calc_achievement(
+                args.perfect,
+                args.great,
+                args.notes,
+                args.combo,
+                i,
+                args.phrase_total,
+            );
+            let skill = calc_skill(args.level, ach);
+            let mark = status_mark(skill, args.target);
+            let current = if i == args.phrase_success {
+                "  <- 現在"
+            } else {
+                ""
+            };
+            println!(
+                "  [{}] {:>w$}/{:<w$}  達成率 {:.2}%  スキル {:.2}{}",
+                mark,
+                i,
+                args.phrase_total,
+                ach,
+                skill,
+                current,
+                w = width
+            );
+        }
+    }
+
     Ok(())
 }
