@@ -198,11 +198,7 @@ fn main() -> Result<()> {
             }
         }
         if let Some((count, ach, skill)) = needed {
-            scenarios.push((
-                format!("Great->Perfectをあと{}個", count),
-                ach,
-                skill,
-            ));
+            scenarios.push((format!("Great->Perfectをあと{}個", count), ach, skill));
         } else {
             // Great全変換でも届かない場合
             let ach = calc_achievement(
@@ -214,11 +210,7 @@ fn main() -> Result<()> {
                 args.phrase_total,
             );
             let skill = calc_skill(args.level, ach);
-            scenarios.push((
-                format!("Great全Perfect化({}個)", args.great),
-                ach,
-                skill,
-            ));
+            scenarios.push((format!("Great全Perfect化({}個)", args.great), ach, skill));
         }
     }
 
@@ -274,11 +266,7 @@ fn main() -> Result<()> {
             }
         }
         if let Some((count, ach, skill)) = needed {
-            scenarios.push((
-                format!("Good/Miss->Perfectをあと{}個", count),
-                ach,
-                skill,
-            ));
+            scenarios.push((format!("Good/Miss->Perfectをあと{}個", count), ach, skill));
         }
     }
 
@@ -351,11 +339,7 @@ fn main() -> Result<()> {
             args.phrase_total,
         );
         let skill = calc_skill(args.level, ach);
-        scenarios.push((
-            "フルコンボ + フレーズ全成功".to_string(),
-            ach,
-            skill,
-        ));
+        scenarios.push(("フルコンボ + フレーズ全成功".to_string(), ach, skill));
     }
 
     // 出力
@@ -482,9 +466,8 @@ mod tests {
         // combo_rate = 200/540 * 5 = 1.8518...
         // phrase_rate = 8/10 * 10 = 8.0
         let ach = calc_achievement(500, 30, 540, 200, 8, 10);
-        let expected = (500.0 * 85.0 + 30.0 * 25.0) / 540.0
-            + 200.0 / 540.0 * 5.0
-            + 8.0 / 10.0 * 10.0;
+        let expected =
+            (500.0 * 85.0 + 30.0 * 25.0) / 540.0 + 200.0 / 540.0 * 5.0 + 8.0 / 10.0 * 10.0;
         assert!(approx_eq(ach, expected));
     }
 
@@ -502,7 +485,10 @@ mod tests {
         let ach = calc_achievement(500, 30, 540, 200, 8, 10);
         let skill = calc_skill(8.5, ach);
         // 小数点第三位以下が切り捨てされていることを確認
-        assert_eq!(format!("{:.2}", skill), format!("{:.2}", (skill * 100.0).floor() / 100.0));
+        assert_eq!(
+            format!("{:.2}", skill),
+            format!("{:.2}", (skill * 100.0).floor() / 100.0)
+        );
     }
 
     #[test]
