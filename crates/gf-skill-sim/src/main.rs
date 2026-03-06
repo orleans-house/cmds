@@ -415,3 +415,116 @@ fn main() -> Result<()> {
 
     Ok(())
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    fn approx_eq(a: f64, b: f64) -> bool {
+        (a - b).abs() < 1e-9
+    }
+
+    #[test]
+    fn achievement_all_perfect_fullcombo_all_phrase() {
+        // 全Perfect + フルコンボ + 全フレーズ成功 = 100%
+        let ach = calc_achievement(100, 0, 100, 100, 10, 10);
+        assert!(approx_eq(ach, 100.0));
+    }
+
+    #[test]
+    fn achievement_perfect_rate_only() {
+        // Perfect 100/200, Great 0, combo 0, phrase 0/0
+        // perfect_rate = (100*85) / 200 = 42.5
+        let ach = calc_achievement(100, 0, 200, 0, 0, 0);
+        assert!(approx_eq(ach, 42.5));
+    }
+
+    #[test]
+    fn achievement_with_great() {
+        // Perfect 80, Great 20, notes 100, combo 0, phrase 0/0
+        // perfect_rate = (80*85 + 20*25) / 100 = (6800 + 500) / 100 = 73.0
+        let ach = calc_achievement(80, 20, 100, 0, 0, 0);
+        assert!(approx_eq(ach, 73.0));
+    }
+
+    #[test]
+    fn achievement_combo_rate() {
+        // combo 50 / notes 100 * 5 = 2.5
+        let ach = calc_achievement(0, 0, 100, 50, 0, 0);
+        assert!(approx_eq(ach, 2.5));
+    }
+
+    #[test]
+    fn achievement_phrase_rate() {
+        // phrase 3/6 * 10 = 5.0
+        let ach = calc_achievement(0, 0, 100, 0, 3, 6);
+        assert!(approx_eq(ach, 5.0));
+    }
+
+    #[test]
+    fn achievement_zero_notes() {
+        let ach = calc_achievement(0, 0, 0, 0, 0, 0);
+        assert!(approx_eq(ach, 0.0));
+    }
+
+    #[test]
+    fn achievement_zero_phrase_total() {
+        // phrase_total=0 の場合 phrase_rate=0
+        let ach = calc_achievement(100, 0, 100, 100, 0, 0);
+        // 85 + 5 + 0 = 90
+        assert!(approx_eq(ach, 90.0));
+    }
+
+    #[test]
+    fn achievement_combined() {
+        // Perfect 500, Great 30, notes 540, combo 200, phrase 8/10
+        // perfect_rate = (500*85 + 30*25) / 540 = (42500 + 750) / 540 = 80.0925...
+        // combo_rate = 200/540 * 5 = 1.8518...
+        // phrase_rate = 8/10 * 10 = 8.0
+        let ach = calc_achievement(500, 30, 540, 200, 8, 10);
+        let expected = (500.0 * 85.0 + 30.0 * 25.0) / 540.0
+            + 200.0 / 540.0 * 5.0
+            + 8.0 / 10.0 * 10.0;
+        assert!(approx_eq(ach, expected));
+    }
+
+    #[test]
+    fn skill_truncation() {
+        // level=5.00, achievement=80.0
+        // 5.00 * 20 * 0.80 = 80.00 (きっちり割り切れる)
+        assert!(approx_eq(calc_skill(5.0, 80.0), 80.0));
+    }
+
+    #[test]
+    fn skill_truncation_floor() {
+        // level=8.50, achievement=89.94...
+        // 8.50 * 20 * 0.8994... = 152.9xx -> 切り捨てで 152.90 近辺
+        let ach = calc_achievement(500, 30, 540, 200, 8, 10);
+        let skill = calc_skill(8.5, ach);
+        // 小数点第三位以下が切り捨てされていることを確認
+        assert_eq!(format!("{:.2}", skill), format!("{:.2}", (skill * 100.0).floor() / 100.0));
+    }
+
+    #[test]
+    fn skill_max_theoretical() {
+        // level=9.99, achievement=100%
+        // 9.99 * 20 * 1.0 = 199.80
+        assert!(approx_eq(calc_skill(9.99, 100.0), 199.80));
+    }
+
+    #[test]
+    fn skill_zero() {
+        assert!(approx_eq(calc_skill(5.0, 0.0), 0.0));
+    }
+
+    #[test]
+    fn status_mark_ok() {
+        assert_eq!(status_mark(155.0, 155.0), "OK");
+        assert_eq!(status_mark(160.0, 155.0), "OK");
+    }
+
+    #[test]
+    fn status_mark_miss() {
+        assert_eq!(status_mark(154.99, 155.0), "--");
+    }
+}
